@@ -1,0 +1,803 @@
+\documentclass{article}
+\usepackage{amsmath, amsfonts}
+\usepackage{theorem} 
+\usepackage[dvips]{graphicx} 
+\usepackage{color}%\psi^{\e}
+%\usepackage{colortbl}.  Have to help me out here mate God
+
+\usepackage[left=2cm, top=.5cm, bottom=0.5cm,right=2cm]{geometry}
+\newcommand{\bl}{\textcolor[rgb]{0.00,0.00,0.00}}
+\newcommand{\bll}{\textcolor[rgb]{0.00,0.00,0.00}}
+\newcommand{\blue}{\textcolor[rgb]{0.00,0.00,0.00}}
+\newcommand{\red}{\textcolor[rgb]{0.00,0.00,0.00}}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}
+}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{exa}{Example}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{defn}{Definition}[section]
+\newtheorem{Assumption}[thm]{Assumption}
+
+{\theorembodyfont{\rmfamily}\newtheorem{rem}{Remark}[section]}
+\def\eqd{\,{\buildrel d \over =}\,}
+\def\wc{\,{\buildrel w \over \to}\,}
+
+
+\newcommand{\be}{\begin{equation}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\p}{\partial}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bq}{\begin{eqnarray}}
+\newcommand{\eq}{\end{eqnarray}}
+\newcommand{\df}{\,\,\,\,:=\,\,\,\,}
+\newcommand{\ex}{\mathbb{E}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\bs}{\bigskip}
+\newcommand{\nind}{\noindent}
+\newcommand{\nn}{\nonumber}
+\newcommand{\pdd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\gm}{\gamma}
+\newcommand{\lb}{\lbrace}
+\newcommand{\rb}{\rbrace}
+\newcommand{\mf}{\mathfrak}
+\newcommand{\sk}{\smallskip}
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+\newcommand{\ph}{\varphi  }
+\newcommand{\e}{\varepsilon}
+\newcommand{~}{\,\,\,\,=\,\,\,\,}
+\newcommand{\lee}{\,\,\,\,\, \le \,\,\,\,\,}
+\newcommand{\gee}{\,\,\,\,\, \ge \,\,\,\,\,}
+\newcommand{\lt}{\,\,\,\,\, < \,\,\,\,\,}
+\newcommand{\gt}{\,\,\,\,\, > \,\,\,\,\,}
+
+
+\def\uc{\,{\buildrel \bar{\mathbb{P}} \over \sim}\,}
+
+\newcommand{\lm}{\lambda}
+\newcommand{\Lm}{\Lambda }
+\newcommand{\Gm}{\Gamma}
+
+\newcommand{\al}{\alpha}
+\newcommand{\tl}{\tilde}
+
+\newcommand{\ul}{\underline}
+\def\wcstar{\,{\buildrel w^* \over \to}\,}
+\newcommand{\mc}{\mathcal}
+\newcommand{\Ex}{\mathbb{E}}
+\newcommand{\Pb}{\mathbb{P}}
+\newcommand{\Qb}{\mathbb{Q}}
+
+\def\cp{\,{\buildrel p \over \to}\,}
+
+\begin{document}
+
+\title{\textbf{Rough Heston with jumps - joint calibration to SPX/VIX level and skew as $T\to0$}}
+
+\author{Martin Forde
+\and
+Benjamin Smith\thanks{Dept. Mathematics, King's College London, Strand, London, WC2R 2LS  ({\tt
+Benjamin.Smith@kcl.ac.uk})}\\
+ \small \hspace*{-4.35cm} 21st Oct 2026
+}
+\date{}
+
+\maketitle
+%\quad \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad Draft version
+\vspace{-.8cm}
+\begin{abstract}
+We augment the well-known rough Heston model with an additional independent CGMY-type L\'{e}vy process with a Brownian component. We show that, subject to parameter feasibility conditions, one can simultaneously use the rough Heston parameters to fit the at-the-money VIX level and skew as $T\to 0$, and the CGMY parameters to fit the observed level, at-the-money correction and at-the-money skew of SPX options as $T\to 0$ (using the main Theorem in \cite{FSV21} adapted for our rough Heston $V$ process). The drift of the $V$ process can also be made consistent with the initial observed variance curve structure, provided the resulting curve is admissible. In this sense, the additional L\'{e}vy component allows the SPX and VIX smiles to decouple as $T\to 0$ (which is not possible for a rough model without jumps), and the model can generate power-law skew for both smiles with different effective $H$-values.  
+%and the volatility for the model also has a non-zero lower bound.
+%ouple in some sense as $T\to 0$ if $1-Y/2<H$.  More precisely,
+% but adding jumps can only increase the VIX skew relative to the overall level.
+%\footnote{We would like to thank Eduardo Abi Jaber, Florian Bourgey, Julien Guyon and Alexandre Pannier for explaining many relevant and useful results in their articles}    %As by products, %and we find that the VIX smile (up to a scaling factor $c$) is the same as the usual limiting asymptotic smile for European options in the large deviations regime (cf. Theorem 3.3 in \cite{FGS21}) for the special case when the correlation $\rho=1$.
+%so in some sense the limiting VIX smile exhibits maximal positive power-law skew.
+\end{abstract}
+
+\vspace{-4mm}
+\section{Introduction}
+
+%$dS_t= (\beta S_t+1-\beta)dW_t $
+
+
+\quad The Rough Heston stochastic volatility model was introduced by Jaisson and Rosenbaum \cite{JR16},
+%, and is now known to accurately reproduce the empirical behavior of historical volatility time series and the dynamics of the FGS21implied volatility surface.,
+ and (using
+$C$-tightness arguments from Jacod and Shiryaev \cite{JS13}) they show that the model arises naturally as a weak large-time limit of a high-frequency market microstructure model driven by two nearly unstable Hawkes processes.  \cite{ER19} show that the characteristic function of the log stock price for the Rough Heston model admits a quasi-closed form solution via the solution to a non-linear Volterra integral equation (VIE) (see also \cite{ER18}), and the variance curve for the model evolves as $d\xi_t(u)=\kappa(u-t)\sqrt{V_t} dW_t$, where $\kappa(t)$ is the usual fractional kernel $t^{H-\half}$ for the $V$ process multiplied by a \textit{Mittag-Leffler} function.  The instantaneous variance process $V$ for the model is $(H-\e)$-H\"{o}lder continuous like fractional Brownian motion (see e.g. Theorem 3.2 in \cite{JR16}) and the model exhibits power law skew in the small-time limit (see Theorem 3.1 in \cite{FGS21} and Corollary 3.4 in \cite{FSV21}).   
+ The theoretical value of the VIX index at time $t$ satisfies $\mathrm{VIX}^2_t=-\frac{2}{\Delta}\Ex^{\Qb}(\log(e^{-(r-q)\Delta}\frac{S_{t+\Delta}}{S_t})|\mc{F}_t)$, where $r$ is the constant risk-free interest rate, $q$ is the constant dividend yield, and $S_t$ is the S\&P 500 index value at time $t$, $\Delta=30$ days and $\mc{F}_t$ is the market filtration, so $\mathrm{VIX}_t$ is effectively a rolling 30-day option-implied, log-contract-based variance rate. With jumps this convention need not coincide with the expectation of realised quadratic variation.  A VIX option is a European call or put option on $\mathrm{VIX}_T$ for some maturity $T$, and if we replace the spot value $S_0$ in the Black-Scholes formula with the VIX future price $\Ex(\mathrm{VIX}_T)$, we can define the implied volatility of a VIX call or put in the usual way by inverting the Black-Scholes formula.  VIX options are very liquid in practice (although their bid/offer spreads are still comparatively high), and empirical and model-generated VIX implied volatility smiles have always exhibited a marked positive skew.
+ %, but to the best of our knowledge this has not been explained until now}. 
+ 
+
+ In \cite{FGS21b}, we consider a generalized Rough Heston model with non-zero initial variance curve $\xi_0(t)$, and we show that (modulo a scaling factor) $(\mathrm{VIX}^2_T\,-\,\mathrm{VIX}^2_0 )/T^{\half-H}$ satisfies the same small-time LDP as the re-scaled log stock price $(X_T-X_0)/T^{\half-H}$ in the main Theorem 3.3 in \cite{FGS21} if we set $\rho=1$.   We later translate this LDP into VIX call option and implied volatility asymptotics, and we compute a small log-moneyness expansion
+ for the asymptotic VIX smile using expansions previously derived in \cite{FGS21}, yielding tractable expressions for the overall level, skew and convexity of the short-end VIX smile. 
+ 
+ \sk
+  Unfortunately, since the limiting VIX smile only depends on the factor $\nu/\sqrt{V_0}$ and not on $\rho$, we cannot simultaneously fit the overall level and skew of observed limiting VIX smile using the standard rough Heston model.  To circumvent this issue, we enrich the model in this article with an additional independent CGMY (a.k.a.\,KoBoL)-type L\'{e}vy process $L$ as in \cite{FSV21} with $Y\in (1,2)$ (which implies $L$ has infinite variation), and using a simple modification of the main result in \cite{FSV21} for the Edgeworth regime where log-moneyness scales like $x\sqrt{T}$, we show that the SPX and VIX smiles decouple in some sense as $T\to 0$ if $1-Y/2<H$.
+  
+  \sk
+  
+ More specifically, we can use the rough Heston parameters $H$, $V_0$, $\nu$ and the initial value $\mathrm{VIX}_0$ of the VIX
+ to fit the overall level and the at-the-money skew of VIX options as $T\to 0$.
+  We can then use the Brownian component $\sigma$ and the CGMY jump parameters $Y$, $C_+$ and $C_-$  to fit the observed at-the-money implied volatility as $T\to 0$, the first order at-the-money correction and the at-the-money skew of SPX options as $T\to 0$.  Finally we choose the CGMY parameters $G$ and/or $M$ and $\xi_0(t)=\Ex(V_t)$ in the definition of the $V$ process to be consistent with the observed variance term structure and the value that we have just calibrated for $V_0$.
+%  (we are free to choose one of $G$ or $M$ so long as the calibrated values both exceed $1$).  
+The upshot of this is that our CGMY-rough Heston model can generate different power-law skew for the SPX and VIX smiles in the $T\to 0$ limit.
+% and we compute upper bounds for the admissible VIX skew in terms of the CGMY parameters for the case when there no positive jumps.  
+%\cite{Guy20b} provides a list of references on earlier papers which have also attempted to decouple the SPX and VIX smiles using jumps (e.g. Cont\&Kokhom\cite{CK13} which uses a (non-rough) Bergomi-type model driven by a Brownian motion plus a L\'{e}vy component), but all were written in the pre-rough stoc vol era, and no exact results were found to the best of our knowledge.
+
+
+
+%Guo et al.\cite{GLOW19} derive a novel method for constructing a local-stochastic volatility model consistent with a finite number of European options by optimizing a certain cost function and re-casting the problem as a convex optimisation
+%problem, and numerically solving the dual problem, which involves a non-linear HJB equation, but although very interesting this approach has essentially the same type of issue as \cite{Guy21}, namely that there is no easy way to know if such a model exists to begin with.
+  
+  %We also mention \cite{HJT20} who consider so-called ``Modulated Volterra'' models which are essentially rough Bergomi-type models but with an additional independent stochastic factor in the Volterra integral (similar to Brownian semi-stationary processes but without the stationarity).  They focus on the specific case when the additional factor is a time-homogeneous positive conservative
+%process independent of the other driving Brownian motions (which includes the CIR process a special case), and they also report greater flexibility in fitting VIX smiles using this class of models.
+ %Discuss Guyon inversion of convex orderding, Friz-Gatheral diamond trees/forest expansions ..
+
+\vspace{-2mm}
+\section{The model}
+
+%Let $(\Omega,\mc{F},\Pb)$ denote a probability space with filtration $(\mc{F}_t)_{t \ge 0}$ which satisfies the usual conditions with $\Pb$ taken as a risk-neutral measure, and 
+Consider a generalized Rough Heston model for a log stock price process $X_t=\log S_t$:
+\bq
+\left\{
+\begin{array}{ll}
+dX_t \,\,=\,\,-\half V_t dt+\sqrt{V_t} (\rho dW_t+\bar{\rho}dB_t) \,,  \\
+V_t \,\,=\,\, \xi_0(t)\,+\,c_{\al}\int_0^t (t-s)^{\al-1} \nu \sqrt{V_s}dW_s \label{eq:Vt}
+%~ \, Y_{t_0} \,+\,\sqrt{2H} \int_{t_0}^0 (t-s)^{H-\half} dW_s\,+\, \sqrt{2H} \int_{0}^t (t-s)^{H-\half} dW_s \\
+\end{array}\
+\right.
+\eq
+for $H \in (0,\half)$, $\al=H+\half$, $c_{\al}=\frac{1}{\Gamma(\al)}$ and $\nu>0$, with some nonnegative initial variance curve $\xi_0(t)$ with $\xi_0(.)$ continuous and $\xi_0(0)=V_0>0$, for which the square-root Volterra equation admits a nonnegative solution, where $W$, $B$ are two independent Brownian motions, $\bar{\rho}=\sqrt{1-\rho^2}$ with $|\rho|\le 1$, and we assume $X_0=0$ and zero interest rate without loss of generality.  It is not known whether we have pathwise uniqueness for $\eqref{eq:Vt}$ even when $\xi_0(t)$ is constant because $\sqrt{v}$ is not Lipschitz at zero (see section 4.2.3 in \cite{JP20} for more on this), but we do have weak uniqueness (see Theorem 3.4 in \cite{ALP19})
+and uniqueness in law for $V$ on $C([0,T])$, since we can explicitly compute an exponential-affine formula for the Fourier transform of $V$ on pathspace in terms of a Volterra integral equation with a unique solution, see Theorem 7.1 in \cite{ALP19} (see also Theorem 6.1 there); the fixed-$t$ version of this formula is used in Appendix B.
+
+
+\subsection{Adding jumps - decoupling the SPX and VIX short-maturity skews}
+
+
+We now augment our rough Heston model to include jumps of infinite variation.  Specifically (following \cite{FSV21}), we now assume that the log stock price process $X$ evolves as\bq
+dX_t &=&-\half V_t dt + \sqrt{V_t} (\rho dW_t + \bar{\rho}dB_t) -dL_t \label{eq:CGMY}
+%~ \, Y_{t_0} \,+\,\sqrt{2H} \int_{t_0}^0 (t-s)^{H-\half} dW_s\,+\, \sqrt{2H} \int_{0}^t (t-s)^{H-\half} dW_s \\
+\eq
+where $L$ is a L\'{e}vy process independent of $W$ and $B$ with $\Ex(e^{-u L_t})=e^{t V(u)}$ for $u$ in some interval $(u_-,u_+)$ which includes $0$ and $1$
+with $\Ex(e^{-L_t})=1$ (i.e. $V(1)=0$) which ensures that $e^{-L}$ is a martingale with respect to its own filtration, and we assume that $X_0=0$ and impose the nondegeneracy assumption that the L\'{e}vy cumulant $V(u)$ is not identically zero.
+
+
+Then
+\bq
+-\frac{2}{\Delta} \Ex(X_{T+\Delta}-X_{T}|\mc{F}_T) &=& \frac{1}{\Delta} \Ex(\int_{T}^{T+\Delta} V_u du|\mc{F}_T)\,-\,
+\frac{2}{\Delta} \Ex(-(L_{T+\Delta}-L_T)|\mc{F}_T) ~ \frac{1}{\Delta}\int_T^{T+\Delta}\xi_T(u) du 
+ \,+\,a_1 \nn
+\eq
+where $\xi_t(u):=\Ex(V_u|\mc{F}_t)$, and
+\bq
+a_1 &:=&   -2V'(0) ~  -\frac{2}{\Delta}\Ex(-(L_{T+\Delta}-L_{T})|\mc{F}_T) \gee -  \frac{2}{\Delta} \log \Ex(e^{-(L_{T+\Delta}-L_{T})}|\mc{F}_T) ~  - \frac{2}{\Delta}\log 1 ~  0 \qquad \label{eq:a_1} \,
+\eq
+and we have used Jensen and the martingale condition to obtain the inequality here.  Moreover, since $V(0)=V(1)=0$, $V'(0)< 0$
+(since the L\'{e}vy cumulant $V(u)$ is not identically zero), so we see that $a_1$ is strictly positive.
+
+\sk
+Then we see that $
+\mathrm{VIX}^2_T= \frac{1}{\Delta}\int_T^{T+\Delta}\xi_T(u)du 
+\,+\,a_1$,
+%so we can view $a_1$ as a ``shift'' factor.  
+so the effect of the independent L\'{e}vy component is to increase the value of $\mathrm{VIX}^2_T$ by a \textit{shift factor}\footnote{Note this is conceptually similar to a simple displaced-diffusion model $dS_t=(\beta S_t+1-\beta)dW_t$ for $S$ with $\beta\in (0,1)$ where $S$ can go negative, but here we do not have this negativity problem since $a_1\ge 0$.  This also means that a VIX put option with $K\le \sqrt{a_1}$ is worthless.} equal to $a_1$. 
+\sk
+  Thus
+$(\mathrm{VIX}^2_T-a_1- \frac{1}{\Delta}\int_0^{\Delta}\xi_0(u) du)/T^{\half-H}=(\mathrm{VIX}^2_T-\mathrm{VIX}^2_0)/T^{\half-H}$ now satisfies the LDP as $T\to 0$ with speed $T^{-2H}$ and rate function $J(x)$ as before, and we have the following: %modification of Corollary \ref{cor:3.1}:
+\begin{cor}
+\label{cor:3.1}
+%we have the following asymptotic behaviour for close-to-the money VIX call option prices:
+\bq
+\lim_{T\to 0}T^{2H}\log \mathbb{E}((\mathrm{VIX}_T-(a_1+\frac{1}{\Delta}\int_0^{\Delta}\xi_0(u)du)^{\half}\,e^{x T^{\half-H}})_+)
+&=& \lim_{T\to 0}T^{2H}\log \mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0\,e^{x T^{\half-H}})_+)\nn \\
+&=& -J(2 (a_1+\frac{1}{\Delta}\int_0^{\Delta}\xi_0(u)du) x) ~ -J(2 \mathrm{VIX}_0^2 x)  \,\nn 
+\eq
+for $x>0$, where $J(.)$ is the same as in the main Theorem 2.1 in \cite{FGS21b}.
+%for $x>0$.
+\end{cor}
+\begin{proof}
+See Appendix A.
+\end{proof}
+\vspace{-2mm}
+\begin{cor}
+\label{cor:VIXImpliedVol}
+%we have the following asymptotic behaviour for close-to-the money VIX call option prices:
+\bq
+\hat{\sigma}_{\mathrm{VIX}}(x) \,\,\,\,:=\,\,\,\,\lim_{T\to 0}\hat{\sigma}_{\mathrm{VIX}}(\mathrm{VIX}_0e^{x T^{\half-H}},T)  &=&\frac{|x|}{\sqrt{2 J(2 \mathrm{VIX}_0^2 x)}}\,.\label{eq:NT}\,
+\eq
+for $x>0$. The value at $x=0$ is understood as the continuous limit as $x\downarrow0$; the corresponding formula for $x<0$ requires the out-of-the-money put asymptotics.
+\end{cor}
+Expanding the final expression in Corollary \ref{cor:VIXImpliedVol} as $x\downarrow0$, we find that
+\bq
+\hat{\sigma}_{\mathrm{VIX}}(x)  &=&  
+\frac{\nu \sqrt{V_0}}{\frac{1}{\Delta}\int_0^{\Delta}\xi_0(u)du+a_1}\, \frac{\Delta^{\al-1} }{
+ 2  \al \Gamma(\al)} \,+\, \frac{\nu }{
+ 2 \sqrt{V_0} \Gamma(2 + \al)} x\,+\,O(x^2) \nn \\
+&=&\frac{\nu \sqrt{V_0}}{\mathrm{VIX}_0^2} \frac{\Delta^{\al-1} }{
+ 2  \al \Gamma(\al)} \,+\, \frac{\nu }{
+ 2 \sqrt{V_0} \Gamma(2 + \al)} x\,+\,O(x^2) 
+\,.\label{eq:VIXShifted}
+%&=& \nu(\frac{\Delta^{-1 + \al} }{
+ %2 \al \Gamma(\al)} \,+\, \frac{1}{
+% 2  \Gamma(2 + \al)}z\,+\,O(z^2))\nn
+\eq
+\begin{rem}
+\label{rem:Caveat}
+Since $a_1\ge 0$, we see that if the leading order term is fixed, adding jumps can only increase the skew term relative to the leading order term.
+\end{rem}
+
+
+\subsection{CGMY jumps and asymptotics for the SPX skew as $T\to 0$ in the Edgeworth regime}
+
+\sk
+From here on we consider the special case when $L$ is a generalized tempered stable (i.e. CGMY-type) process with $L_0=0$, Brownian variance $\sigma^2$, and L\'{e}vy density $\nu(x)=\frac{C_+ e^{-Mx}}{x^{1+Y}}1_{x>0}+\frac{C_- e^{-G|x|}}{|x|^{1+Y}}1_{x<0}$ with $Y\in (1,2)$, which implies that
+\bq
+\phi^L_t(u)&:=&\Ex(e^{-i u (L_t-L_0)})~  e^{t\psi(u)}~  e^{i u b t\,-\,\half \sigma^2 u^2 t\,+\, C_+\Gamma(-Y) t[(M +iu)^Y-M^Y ]\,+\,C_-\Gamma(-Y) t[(G -iu)^Y-G^Y ]}
+\quad\quad \quad \label{eq:CF-L}
+\eq  and $\Ex(e^{-p L_t})=e^{V(p) t}$ for $p\in (-M,G)$, where $V(p)=\psi(-ip)$.
+Here $b$ is the linear coefficient in the characteristic exponent of $-L$, not the drift of $L$ in the standard L\'{e}vy--Khintchine representation. For example, using the truncation function $h(x)=x$, the drift of $L$ is $-b-Y\Gamma(-Y)(C_+M^{Y-1}-C_-G^{Y-1})$. Note that $b$ is fixed by the martingale condition $V(1)=0$.
+
+
+\begin{rem}
+Corollary 2.10 and Remark 2.7 in \cite{FSV21} describe a method for simulating $L_t$ by changing to a measure under which $L$ is a pure $\al$-stable process, which allows for long-time stepping using the classical Chambers, Mallows and Stuck \cite{CMS76} formula for sampling stable random variables.
+\end{rem}
+
+
+
+The bivariate weak convergence used for the rough-volatility correction in the main Theorem 2.1 of \cite{FSV21} is established for our rough Heston model in Appendix B: the Gaussian approximation $X^{(0)}_t$ there plays the role of $\hat{X}_t$ in Eq. 17 of \cite{FSV21}. For the leading CGMY correction, however, a quantitative comparison with the constant-volatility model suffices, together with the localisation in Appendix C and the pure-jump expansion in \cite{FSV21}; the independent Brownian component of $L$ is incorporated in the leading Gaussian variance, changing $V_0$ to $V_0+\sigma^2$. The history term $\zeta$ in our context (see just below Eq. 5 in \cite{FSV21}) is $\zeta(t)=\mathbb{E}(V_t)-V_0=\xi_0(t)-V_0$, whose contribution is $O(t^H)$ under the assumption $\xi_0(t)-V_0=O(t^H)$. The full two-term expansion in Theorem 2.1 of \cite{FSV21} assumes $H<2-Y$, but the following leading-jump expansion holds on the larger range $1-Y/2<H<1/2$, as shown below:
+
+
+\begin{prop}
+\label{prop:FSV}
+Let $\hat{\sigma}(K,T)$ denote the implied volatility of a European call option with strike $K$ and maturity $T$ at time zero.
+For the model in \eqref{eq:CGMY}, if $1-\half Y < H < \half$, $G>1$, $M>1$, $\xi_0(t)-V_0=O(t^H)$ as $t\to0$, and $S$ is a true martingale, 
+we have the following asymptotic behaviour for implied volatility at time zero in the Edgeworth regime:
+% in the $k_t=z\sqrt{t}$
+%regime:
+\bq
+\hat{\sigma}(e^{z\sqrt{T}},T) &=& \sqrt{V_0+\sigma^2} \,+\, \frac{1}{\phi(\frac{z}{\sqrt{V_0+\sigma^2}})} (C_+A_+(z)+C_-A_{-}(z))T^{1-\half Y} 
+\,+\,o(T^{1-\half Y} )
+%\,+\,\frac{b_1 \rho \nu }{V_0^{\half}}z T^H \,+\,o(T^H)
+\label{eq:SPX}
+\eq
+for $z\in\mathbb{R}$ as $T\to 0$
+%where $b_1=\frac{1}{2 \Gamma(\frac{5}{2}+H)}$ 
+and
+\bq
+A_{\pm}(z) &=& \frac{1}{\pi}  \int_{0}^{\infty}   \mathrm{Re}[e^{-i u z}e^{-\half (V_0+\sigma^2) u^2}\Gamma(-Y) ( \pm iu)^{Y-2}]du\nn \,
+%A^-_1(z) &=& \frac{1}{\pi}  \int_{0}^{\infty}   \mathrm{Re}[e^{-i u z}e^{-\half v_0^2 u^2} C_-\Gamma(-Y) (-iu)^{Y-2}]du\nn 
+\eq
+where $\phi$ is the standard Normal density.
+\end{prop}
+
+\nind \begin{proof}
+Put $\theta=1-Y/2$. The localisation in Appendix C allows us to replace the square-root coefficient by a bounded Lipschitz function, with an exponentially small error in the normalized put price. Let $\hat V$ and $\hat X$ denote the corresponding localized processes in that appendix, and let $X^{(0)}_t=\sqrt{V_0}(\rho W_t+\bar\rho B_t)$ as in Appendix B. By It\^o isometry, the assumption $\xi_0(t)-V_0=O(t^H)$ and the boundedness and Lipschitz continuity of the localized coefficient,
+\bq
+\mathbb{E}((\hat V_t-V_0)^2)&=&O(t^{2H}),\nn\\
+\mathbb{E}(|\hat X_t-(X^{(0)}_t-\half V_0t-L_t)|)&=&O(t^{H+\half}).\nn
+\eq
+For fixed $z$, the function $x\mapsto(e^{z\sqrt{t}}-e^x)^+$ is $e^{z\sqrt{t}}$-Lipschitz. After dividing by $\sqrt{t}$, the put price for the localized model therefore differs from that for the constant-volatility Gaussian-plus-L\'{e}vy model by $O(t^H)$, and the localisation error is smaller than any power of $t$. The independent Brownian component of $L$ simply changes the Gaussian variance to $V_0+\sigma^2$.
+
+Proposition 2.4 of \cite{FSV21} gives a pure-jump correction of order $t^\theta$ with remainder $O(t^{\min(2-Y,\half)})$. Although stated under the stronger assumptions of Theorem 2.1 of that paper, its proof in Appendix C does not involve $H$, so the same remainder estimate applies here. Since $\theta<H<\half$ and $\min(2-Y,\half)>\theta$, all these errors are $o(t^\theta)$. The leading-jump implied-volatility expansion \eqref{eq:SPX} then follows by the Black--Scholes inversion argument of Lemma 2.7 in \cite{FSV21}.
+
+The stronger condition $H<2-Y$ in Theorem 2.1 of \cite{FSV21} is needed there to make the second-order jump remainder $O(t^{2-Y})$ smaller than the rough-volatility correction of order $t^H$. We do not retain that latter correction here, so this additional condition is unnecessary.
+\end{proof}
+\begin{rem}
+$\frac{1}{\phi(\frac{z}{\sqrt{V_0+\sigma^2}})} (C_+A_+(z)+C_-A_{-}(z))$ is non-linear in $z$ and does not vanish at $z=0$ in general (see e.g. Figure 6 in \cite{FSV21} for a plot), and $C_+$ and $M$ relate to negative jumps for $X$ and $C_-$ and $G$ relate to positive jumps, since we are subtracting $L$ in \eqref{eq:CGMY}.  In particular, the rough-Heston small-time LDP for $X_t/t^{\half-H}$ at speed $t^{-2H}$ does not extend to the jump model: jumps of size $t^{\half-H}$ have polynomial, rather than exponentially small, probabilities.  
+%See Theorem 3.5 in \cite{FGH17} for a higher order expansion for the case when there is no rough stoc vol component.
+\end{rem}
+\begin{rem}
+Note that $a_1$ depends on $M$ and $G$ as well, which do not show up in the leading order Edgeworth asymptotics in \eqref{eq:SPX}.
+\end{rem}
+Hence the addition of the CGMY-type jump process $L$ allows the asymptotic SPX and VIX short time smiles to have power-law skews with different $H$-values since the effective $H$ as $T\to 0$ for the former is now $1-Y/2$ (due to jumps alone, see \eqref{eq:SPX}) and the latter is $H=\al-\half$ (due to $V$ alone), so (aside from \eqref{eq:SPX} depending on $V_0$), we have effectively de-coupled the short-time behaviour of the SPX and VIX skews.
+
+
+
+\subsection{Exact calibration to the at-the-money skew for SPX and VIX as $T\to 0$}
+
+\sk
+%  With $V_0$ now fixed, 
+We let $\hat{\sigma}^{\mathrm{mkt}}_{\mathrm{VIX}}(K,T)$ denote the \textit{market} implied volatility of a VIX call option with strike $K$ and maturity $T$.  If there exists an $\al=H+\half$ such that $\lim_{T\to 0}\hat{\sigma}^{\mathrm{mkt}}_{\mathrm{VIX}}(\mathrm{VIX}_0e^{x T^{\half-H}},T)$ has a non-trivial limit which is differentiable in $x$, then we can choose $V_0$ and $\nu$ so that the market observed behaviour of VIX options as $T\to 0$ is consistent with \eqref{eq:VIXShifted}. %(from Remark \ref{rem:Caveat}, we know this only do-able if the VIX skew exhibits greater positive skew relative to the overall level than for the standard rough Heston model without jumps).  
+\sk
+We can then choose parameters so that \eqref{eq:SPX} is consistent with the observed behaviour of SPX options in the market, provided the parameters obtained below are admissible.
+ Define $\hat{\sigma}^{\mathrm{mkt}}(1,0):=\lim_{T\to0}\hat{\sigma}^{\mathrm{mkt}}(1,T)$. Specifically choose $\sigma$ to fit this limiting at-the-money implied vol, which requires $\sigma^2=(\hat{\sigma}^{\mathrm{mkt}}(1,0))^2-V_0\ge0$, and then solve for $C_+$, $C_-$ and $Y$ to match the observed behaviour of
+the at-the-money correction for European options: $\lim_{T\to 0}\frac{\hat{\sigma}^{\mathrm{mkt}}(1,T)-\hat{\sigma}^{\mathrm{mkt}}(1,0)}{T^{1-Y/2}}$ and the skew term: $\lim_{z\to 0} \lim_{T\to 0}\frac{\hat{\sigma}^{\mathrm{mkt}}(e^{z\sqrt{T}},T)-\hat{\sigma}^{\mathrm{mkt}}(1,T)}{z T^{1-Y/2}}$, assuming we can find a $Y \in (1,2)$ such that both these limits are finite (and at least one is non-zero).  This leads to the following two equations for $C_{\pm}$:% (this is just a system of two linear equations in $C_+$ and $C_-$:
+\bq
+\sqrt{2 \pi}(C_+ A_+(0) \,+\, C_- A_{-}(0))&=& \lim_{T\to 0}\frac{\hat{\sigma}^{\mathrm{mkt}}(1,T)-\hat{\sigma}^{\mathrm{mkt}}(1,0)}{T^{1-Y/2}}\label{eq:Noise}\\
+\sqrt{2\pi}(C_+ A_+'(0) \,+\, C_- A_{-}'(0)) &=& \lim_{z\to 0} \lim_{T\to 0}\frac{\hat{\sigma}^{\mathrm{mkt}}(e^{z\sqrt{T}},T)-\hat{\sigma}^{\mathrm{mkt}}(1,T)}{z T^{1-Y/2}}\,\label{eq:Noise2}
+\eq
+obtained by computing $\frac{1}{\phi(\frac{z}{\sqrt{V_0+\sigma^2}})} (C_+A_+(z)+C_-A_{-}(z))$ and its derivative at $z=0$. Any solution must also satisfy $C_+\ge0$ and $C_-\ge0$; invertibility of the linear system by itself does not guarantee an admissible calibration.
+%Compute the Wronskian!!!
+The last two equations are linear in $C_+$ and $C_-$ and hence can be solved explicitly if the Wronskian of $A_+(z)$ and $A_-(z)$ is non-zero at $z=0$, and we can verify that this is indeed the case since 
+\bq
+A_{\pm}(z) &=& \frac{1}{\pi}  \int_{0}^{\infty}   \mathrm{Re}[e^{-i u z}e^{-\half (V_0+\sigma^2) u^2}\Gamma(-Y) ( \pm iu)^{Y-2}]du\nn \\
+&=& \frac{1}{\pi}  \int_{0}^{\infty}   \mathrm{Re}[e^{-i u z}e^{-\half (V_0+\sigma^2) u^2}\Gamma(-Y) e^{\pm \half i \pi(Y-2)} u^{Y-2}]du\nn \\
+&=& \frac{1}{\pi}  \int_{0}^{\infty}   \cos(-u z\pm \half\pi(Y-2))e^{-\half (V_0+\sigma^2) u^2}\Gamma(-Y)  u^{Y-2}du\nn
+\eq
+which implies that
+\bq
+A'_{\pm}(z) &=& \frac{1}{\pi}  \int_{0}^{\infty}   \mathrm{Re}[u\sin(-u z\pm \half \pi(Y-2))e^{-\half (V_0+\sigma^2) u^2}\Gamma(-Y)  u^{Y-2}]du\nn \\
+ A_{\pm}(0) &=& \frac{1}{\pi}  \int_{0}^{\infty}   \mathrm{Re}[\cos( \half \pi(Y-2))e^{-\half (V_0+\sigma^2) u^2}\Gamma(-Y)  u^{Y-2}]du\nn \\
+A'_{\pm}(0) &=&\pm  \frac{1}{\pi}  \int_{0}^{\infty}   \mathrm{Re}[ u\sin(\half\pi(Y-2))e^{-\half (V_0+\sigma^2) u^2}\Gamma(-Y)  u^{Y-2}]du\nn
+\eq
+i.e. $A_+(0)=A_-(0)$ and $A'_+(0)=-A'_-(0)$.
+
+\sk
+
+We also have to make the model consistent with the observed option-implied log-contract variance term structure (rather than, in general with jumps, the expected realised quadratic variation) up to some maturity $T^*\in (0,\Delta]$, for which
+\bq
+-2\Ex(\log \frac{S_t}{S_0}) &=&\int_0^t\xi_0(u) du \,+\,a_1  t
+\nn \\
+\Rightarrow \quad \quad -\pdd{}{t}2\Ex(\log \frac{S_t}{S_0}) &=&\xi_0(t) \,+\,a_1 \label{eq:Starr}
+%1_{t< T^*}\,+\,a_2 1_{t\ge T^*}\, 
+\\
+\Rightarrow \quad -\pdd{}{t}2\Ex(\log \frac{S_t}{S_0})_{t=0} &=&\xi_0(0) \,+\,a_1 ~ V_0 \,+\,a_1\nn\,.
+\eq
+$a_1$ depends on $G$ and $M$, which must be chosen so the calibrated value $\xi_0(0)=V_0$ here matches our calibrated value of $V_0$ from above; then \eqref{eq:Starr} uniquely determines $\xi_0(t)$ for $t>0$ as well
+(and this includes being consistent with the market value of $\mathrm{VIX}_0$ which corresponds to $t=\Delta$), which we have implicitly used above for the VIX smile calibration. This requires checking that the inferred $\xi_0$ remains nonnegative and gives an admissible nonnegative solution to the square-root Volterra equation.
+
+
+\sk
+%We can do this by choosing any $M, G>1$ which then fixes $a_1$, and \eqref{eq:Starr} then uniquely determines $\xi_0(t)$.  
+
+%In principle $M$ and $G$ could be chosen to fit observed tail/wing behaviour for SPX at a single maturity since the critical upper moment for the log stock price is $G$ if $G$ is less than the critical moment for the rough Heston component of the model, and similarly for $-M$ for the left tail.
+
+%Finally we just have to find a $G$ and an $M$ value which are consistent with the market observed value of $\mathrm{VIX}_0^2$.
+%, i.e. so that $a_1=-2V'(0)$ (we can e.g. choose $G=kM$ for some $k>0$ and then perform a line search for $M$).  This then finally fixes the value of $b$ in \eqref{eq:CF-L} via the martingale condition $V(1)=0$. 
+
+% 
+%We can choose $\al$, $V_0$, and $\nu$ to fit the observed behaviour of the first two terms for \eqref{eq:1stTwoTerms} in the \textit{market} (i.e. at-the-money and skew behaviour), assuming there is power-law skew with some value $H \in (0,\half)$ for the limiting VIX smile. 
+
+We now discuss the range of admissible values for $a_1$.
+% which controls the extent to which we can decouple the zeroth and first terms in \eqref{eq:VIXShifted}.  
+Imposing the martingale condition $V(1)=0$ we find that 
+\bq
+a_1 ~ a_1(G,M)&=&\sigma^2\,-\,2 C_+ (M^{Y}-(1 + M)^Y + M^{Y-1} Y) \Gamma(-Y)\nn \\
+&+&2 C_- ((G-1)^Y -G^Y+ G^{Y-1}Y) \Gamma(-Y)\nn\,.
+\eq
+\nind Then $a_1(1,1)>0$ and $a_1(G,M) \to \sigma^2$ as $M,G\to \infty$, and we have the following monotonicity result: 
+\begin{lem}
+$a_1(G,M)$ is continuous and nonincreasing in $M$ and $G$, and is strictly decreasing in $M$ if $C_+>0$ and in $G$ if $C_->0$.
+\end{lem}
+\begin{proof}
+\bq
+\pdd{a_1}{M} &=&-\,2 C_+ (Y M^{Y-1}- Y(1 + M)^{Y-1} + Y(Y-1) M^{Y-2} ) \Gamma(-Y)\label{eq:deriv} 
+%&+&2 C_- ((G-1)^Y -G^Y- G^{Y-1}Y) \Gamma(-Y)\nn\,.
+\eq
+Now consider the function $g_M(K)=(K+M)^{Y-1}$.  This function is concave so
+\bq
+(K+M)^{Y-1} &\le& M^{Y-1}\,+\,(Y-1)M^{Y-2} K\nn
+\eq
+Setting $K=1$ we see that
+\bq
+(1+M)^{Y-1} &\le& M^{Y-1}\,+\,(Y-1)M^{Y-2} \nn
+\eq
+and the result follows by comparing this to \eqref{eq:deriv}.  We use a similar argument for the term involving $G$.
+\nind \end{proof}
+
+
+\sk 
+\nind Since Proposition \ref{prop:FSV} requires that $G,M>1$, we see that there is an interval $(\sigma^2,a_1^*)$ of admissible $a_1$-values, where $a_1^*=a_1(1,1)=\sigma^2+2  (C_+(2^Y-Y-1) +C_- (Y-1) )\Gamma(-Y)$ for $Y$ in the admissible range $Y \in (1,2)$.  If the calibrated $V_0$-value is such that $-\pdd{}{t}2\Ex(\log \frac{S_t}{S_0})_{t=0} -V_0 \notin (\sigma^2, a_1^*)$ (see \eqref{eq:Starr}) then it means the model is mis-specified, and this ultimately puts an upper and lower bound on the admissible ratio of the first to the zeroth order term in \eqref{eq:VIXShifted}.
+
+% with $(1,M^*)$ as the corresponding range of admissible $M$-values,
+% and $a_1$ and $\nu$ are given explicitly by
+%\bq
+%a_1~V_0 (\frac{\Delta^{\al-1} \Gamma(2 + \al)}{
+  %   \al \Gamma(\al)}\frac{\sigma_1}{\sigma_0}-1)\quad ,\quad  \nu ~ 2 \sigma_1 \sqrt{V_0} \Gamma(2 + \al)\nn
+%\eq
+%if $\hat{\sigma}^{\mathrm{mkt}}_{\mathrm{VIX}}(x)=\sigma_0 +\sigma_1 x +O(x^2)$.  Then we see that
+%the calibration works if $a_1\in (0, a_1^*)$, which we re-write as
+%\bq
+%\frac{\sigma_1}{\sigma_0} &\in& (0, \frac{\al \Gamma(\al)}{\Delta^{\al-1} \Gamma(2 + \al)}\frac{2 C_+ (2^Y-Y-1) \Gamma(-Y)}{V_0}+1)\nn
+%\eq
+%and since $a_1$ is the shift factor, this gives an upper bound on the admissible VIX skew relative to the overall level as $T\to 0$.
+
+\sk
+
+Of course in practice we cannot perfectly extract all the limiting quantities on the right hand side of \eqref{eq:Noise} and \eqref{eq:Noise2} from the market since only a finite number of options are traded, and there are real-life issues with noisy data, bid-offer spreads, day count/weekend conventions etc.,
+but one can approximate the quantities on the right with finite differences to incorporate information from options with small but non-zero maturity.  These results can also be used to make smart initial guesses for conventional and deep learning-based calibration schemes.
+
+% One can perform similar ad hoc computations for the general case where $C_->0$ which may improve these bounds, but the computations will be messier in general.
+
+
+%If we set $C_-=0$ for simplicity (i.e. $S$ has only negative jumps) then the $G$ parameter is effectively dormant, and we cannot fit both quantities on the right hand side of \eqref{eq:Noise}
+%and \eqref{eq:Noise2}, so if we decide to ignore the former (i.e. the observed at-the-money correction term) then 
+% in terms of the CGMY parameters
+%and recall that $V_0$, $Y$ and $C_+$ will come from the calibration to the SPX skew here. 
+ 
+%\in (2 (2 \log 2 - 1),\infty)
+% To be consistent we can then set $G=M$ and then solve for $M$ so that $a_1=0$.  %This gives us a whole family of ways to fit these market observed quantities, as a function of the single parameter $\sigma$.
+
+%\in (2 (2 \log 2 - 1),\infty)
+% To be consistent we can then set $G=M$ and then solve for $M$ so that $a_1=0$.  %This gives us a whole family of ways to fit these market observed quantities, as a function of the single parameter $\sigma$.
+%\begin{rem}
+%This method (and model) may avoid potential problems of overfitting using e.g. Schr\"{o}dinger bridge-type model (see \cite{HL19} and Guyon\cite{Guy20b}) which is a time-inhomogeneous diffusion model which is Markovian in $S_t$ and $V_t$.  Our model is entirely plausible as a natural time-homogenous extension of the rough Heston model
+%\end{rem}
+\vspace{-2mm}
+
+
+\begin{thebibliography}{99}
+
+%\bibitem[AE19]{AE19} Abi Jaber, E. and O.El Euch, ``Markovian structure of the Volterra Heston model'',
+%\textit{Statistics\&Probability Letters}, Volume 149, June 2019, Pages 63-72.
+
+\bibitem[ALP19]{ALP19} Abi Jaber, E., M.Larsson, and S.Pulido, ``Affine
+Volterra processes'', \textit{Annals of Applied Probability}, Volume 29, Number 5 (2019), 3155-3200.
+
+%\bibitem[ACLP19]{ACLP19} Abi Jaber, C.Cuchiero, E., M.Larsson, and S.Pulido, ``A weak solution theory for stochastic Volterra 
+%equations of convolution type'', 2019, to appear in \textit{Annals of Applied Probability}.
+
+%\bibitem[AP07]{AP07} Andersen, L.B.G., Piterbarg, V.V., ``Moment Explosions in Stochastic Volatility Models'', \textit{Finance and Stochastics}, 11 (1), 29-50, 2007.
+
+%\bibitem[Bour20]{Bour20} Bourgey, F., ``Stochastic approximations for financial risk computations'', PhD thesis, L'Ecole Polytechnique, 2020.
+
+%\bibitem[Brun17]{Brun17} Brunner, H., ``Volterra integral equations'', Cambridge University Press,
+%Cambridge, 2017.
+
+\bibitem[BV26]{BuresVives2026}
+Bur\'es, O. and Vives, J.,
+On the skew-curvature power law relationship in a stochastic volatility model with infinite variation L\'evy jumps,
+arXiv preprint arXiv:2610.23488 (2026).
+
+\bibitem[CMS76]{CMS76} Chambers, J., C.Mallows, and B.Stuck,  ``A method for simulating
+stable random variables'', \textit{J. Amer. Statist. Assoc.}, 71 (1976), pp. 340-344.
+
+%\bibitem[CPR17]{CPR17}
+%Chavez, H.Prado and E.G.Reyes,  ``A Laplace transform approach to linear equations with infinitely many derivatives and zeta-nonlocal field equations'', preprint, 2017
+
+%\bibitem[CK13]{CK13} Cont, R. and T.Kokholm, ``A Consistent Pricing Model for Index Options and Volatility Derivatives'', \textit{Mathematical Finance}, Volume23, Issue 2,
+%April 2013, Pages 248-27
+
+
+%\bibitem[DZ98]{DZ98} Dembo, A. and O.Zeitouni, ``Large deviations techniques and
+%     applications'', Jones and Bartlet publishers, Boston, 1998.
+
+
+
+%\bibitem[EFGR19]{EFGR19} El Euch, O., Fukasawa, M., Gatheral, J. and M.Rosenbaum, “Short-term at-the-money asymptotics under stochastic volatility models”, \textit{SIAM J. Finan. Math.}, 10(2), 491–511, 2019. 
+
+
+%\bibitem[EGR18]{EGR18} El Euch, O., Gatheral, J. and M.Rosenbaum, ``Roughening Heston'', \textit{Risk} magazine, pp. 84-89, May 2019.
+
+\bibitem[ER18]{ER18} El Euch, O. and M.Rosenbaum, ``Perfect hedging in Rough Heston models'', \textit{Annals of Applied Probability}, 28 (6), 3813-3856, 2018.
+
+
+\bibitem[ER19]{ER19} El Euch, O. and M.Rosenbaum, ``The characteristic function of Rough Heston models'', \textit{Mathematical Finance}, 29(1), 3-38, 2019.
+
+\bibitem[FGS21]{FGS21} Forde, M., S.Gerhold and B.Smith, ``Small-time, large-time and $H\to 0$ asymptotics for the Rough Heston model'',  \textit{Mathematical Finance}, 31(1), pgs 203-241, 2021.
+
+\bibitem[FGS21b]{FGS21b} Forde, M., S.Gerhold and B.Smith, ``Small-time VIX smile for the Rough Heston model'', preprint, 2021.
+
+%\bibitem[FGH17]{FGH17} Figueroa-L\'{o}pez, J., R.Gong and C.Houdr\'{e},
+%``Third-Order Short-Time Expansions for Close-to-the-Money Option
+%Prices Under the CGMY Model'', \textit{Journal of Applied Mathematical Finance}, 24, p. 547-574, 2017.
+
+\bibitem[FSV21]{FSV21} Forde, M., B.Smith and L.Viitasaari, ``Rough volatility and CGMY jumps with a finite history and the Rough Heston model - small-time asymptotics in the $k\sqrt{t}$ regime'', \textit{Quantitative Finance}, 21(4), pp.541-563, 2021.
+
+%\bibitem[Gath21]{Gath21} Gatheral, J., ``Diamond trees and the forest expansion'', Bloomberg Quant (BBQ) Seminar, January  2021 (joint work with E.Al\`{o}s, P.Friz and R.Radoi\v{c}i\v{c}).
+
+
+%\bibitem[GK19]{GK19} Gatheral, J. and M.Keller-Ressel, ``Affine forward variance models'', 
+%\textit{Finance and Stochastics}, volume 23, pp.501-533, 2019.
+%R.Radoicic).
+
+
+%\bibitem[L83]{L83} Lubich, C., ``Runge-Kutta theory for Volterra and Abel integral equations of the second kind'', \textit{Math. Comp.}, 41: 87-102, 1983.
+
+
+%\bibitem[GLOW21]{GLOW21} Guo, I., G.Loeper, J.Obloj, S.Wang, ``Optimal transport for model calibration'', preprint
+
+
+
+%\bibitem[GLOW19]{GLOW19} Guo, I., G.Loeper, S.Wang, ``Calibration of Local-Stochastic Volatility Models by Optimal Transport'', preprint
+
+%\bibitem[Guy18]{Guy18} Guyon, J., ``On the joint calibration of SPX and VIX options'', presentation at the Bachelier
+%World Congress, Dublin, July 2018.
+
+%\bibitem[Gath21]{Gath21} Gatheral, J., ``Efficient simulation of affine forward variance
+%models'', preprint
+
+
+
+%\bibitem[GR19]{GR19} Gatheral, J. and R.Radoi\v{c}i\v{c}, ``Rational Approximation of the Rough Heston Solution''
+%\textit{International Journal of Theoretical and Applied Finance}, Vol. 22, No. 3, 1950010, 2019
+
+
+
+%\bibitem[HJT20]{HJT20} Horvath,B., A.Jacquier and P. Tankov, ``Volatility options in rough volatility models'', \textit{SIAM Journal on Financial Mathematics}, 11(2): 437-469, 2020.
+
+%\bibitem[HL19]{HL19} Henry-Labord\'{e}re, P., ``From (Martingale) Schrodinger bridges to a new class of Stochastic Volatility Models'', preprint, 2019
+
+
+\bibitem[JP20]{JP20} Jacquier, A. and A.Pannier, ``Large and Moderate Deviations for Stochastic Volterra Systems'', preprint
+
+%\bibitem[Jab19]{Jab19} Abi Jaber, E., ``Weak existence and uniqueness for affine stochastic
+%Volterra equations with $L^1$-kernels''
+
+\bibitem[JR16]{JR16} Jaisson, T. and M.Rosenbaum, ``Rough fractional diffusions
+as scaling limits of nearly unstable heavy tailed Hawkes processes'', \textit{Annals of Applied
+Probability}, 26(5), 2860-2882, 2016.
+
+\bibitem[JS13]{JS13} Jacod, J. and A.Shiryaev, ``Limit theorems for stochastic processes'', volume 288.
+Springer Science\&Business Media, 2013.
+
+
+%\bibitem[MW21]{MW21} Jingtang Ma, and Haofei Wu, ``A fast algorithm for simulation of rough
+%volatility models'', \textit{Quantitative Finance}, DOI: 10.1080/14697688.2021.1970213
+
+%\bibitem[Rom22]{Rom22} R{\o}mer, S.  ``Hybrid multifactor scheme for stochastic Volterra
+%equations with completely monotone kernels'', preprint
+
+\bibitem[Zha08]{Zha08} Zhang, X., ``Euler schemes and large deviations for stochastic Volterra equations with singular kernels'', \textit{Journal of Differential Equations}, 244:2226–2250, 2008
+
+%\bibitem[Vil09]{Vil09} Villani, C.: ``Optimal transport. Old and new'', volume 338 of Grundlehren der mathematischen Wissenschaften, Springer, 2009.
+\end{thebibliography}
+
+
+\appendix
+
+
+\section{Asymptotics for VIX call options}
+\renewcommand{\theequation}{A-\arabic{equation}}
+\setcounter{equation}{0}
+
+\sk
+\nind From Jensen's inequality, we know that for any $q\ge1$ we have
+\bq (\mathrm{VIX}_T^2)^q&=& (a_1+\frac{1}{\Delta} \int_T^{T+\Delta} \xi_T(u) du)^q 
+~  (\frac{1}{\Delta} \int_T^{T+\Delta} (a_1+\xi_T(u)) du)^q  \lee \frac{1}{\Delta} \int_T^{T+\Delta} (a_1+\xi_T(u))^q du\nn\eq
+and hence
+\bq\Ex(\mathrm{VIX}_T^{2 q}) \lee  \frac{1}{\Delta} \int_T^{T+\Delta} \Ex((a_1+\xi_T(u))^q) du
+    &=& \frac{1}{\Delta} \int_T^{T+\Delta} \Ex(\,\Ex(a_1+V_u|\mc{F}_T)^q) du \nn \\
+&\le& \frac{1}{\Delta} \int_T^{T+\Delta} \Ex((a_1+V_u)^q) du
+\label{eq:Jen}\,
+\eq
+which will be needed further down.
+ 
+\begin{itemize}
+\item Lower bound.  We first note that for $x$ fixed and any $\delta\in (0,|x|)$,
+$
+e^{x T^{\half-H}} \le 1\,+\,(x+\delta) T^{\half-H}
+$
+for $T$ sufficiently small.
+Recall that $\mathrm{VIX}_0^2=a_1+\frac{1}{\Delta}\int_0^{\Delta}\xi_0(u) du$ and we set
+$k_{x,\delta}:=\mathrm{VIX}_0(x+\delta)$.  Thus for $T=T(\delta)$ sufficiently small
+%  Then using a Chebychev estimate and setting  and recalling that , we see that 
+\bq
+\mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0 e^{x T^{\half-H}})_+) &\ge&
+\mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0 (1+(x+\delta) T^{\half-H}))_+)  \nn \\
+&=&T^{\half-H}\mathbb{E}((\frac{\mathrm{VIX}_T-\mathrm{VIX}_0}{T^{\half-H}}-k_{x,\delta})_+)  \nn \\
+&\ge& 
+\delta T^{\half-H}\mathbb{E}(1_{\frac{\mathrm{VIX}_T-\mathrm{VIX}_0}{T^{\half-H}}>k_{x,\delta}+\delta })  \nn\\
+&=& 
+\delta T^{\half-H}\Pb(\mathrm{VIX}_T>\mathrm{VIX}_0+T^{\half-H}(k_{x,\delta}+\delta) )  \nn\\
+&=& 
+\delta T^{\half-H} \,\Pb(\mathrm{VIX}^2_T>\mathrm{VIX}_0^2+2\mathrm{VIX}_0\,(k_{x,\delta}+\delta) T^{\half-H} + (k_{x,\delta}+\delta)^2 T^{1-2H} )\nn \,.
+\eq
+But for $T=T(\delta)$ sufficiently small, the right hand side here is greater than or equal to
+\bq
+&&\delta T^{\half-H} \,\Pb(\mathrm{VIX}^2_T-\mathrm{VIX}^2_0>2\mathrm{VIX}_0\,(k_{x,\delta}+2\delta) T^{\half-H} )\nn\\
+&=&\delta T^{\half-H} \,\Pb(\frac{1}{\Delta}\int_T^{T+\Delta}\xi_T(u) du-\frac{1}{\Delta}\int_0^{\Delta}\xi_0(u) du>2\mathrm{VIX}_0\,(k_{x,\delta}+2\delta) T^{\half-H} )\nn\,.
+\eq
+Then using the LDP and the continuity of $J$ we see that
+\bq
+\liminf_{T\to 0}T^{2H}\log \mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0\,e^{x T^{\half-H}})_+)  
+&\ge& -J(2\mathrm{VIX}_0(k_{x,\delta}+2\delta)) \nn \\
+&=& -J(2\mathrm{VIX}_0^2 x+2\delta \mathrm{VIX}^2_0+4\delta \mathrm{VIX}_0)\,.\nn
+\eq
+We then let $\delta\to 0$ and again use the continuity of the rate function $J(x)$ to obtain the required lower bound.
+
+\item Upper bound. From H\"{o}lder's inequality, we note that for $q>1$
+\bq
+\mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0\,e^{x T^{\half-H}})_+) &\le& \mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0(1+x T^{\half-H}))_+) \nn\\&=&\mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0(1+x T^{\half-H}))_+1_{\mathrm{VIX}_T \ge \mathrm{VIX}_0\,(1+x T^{\half-H})}) \nn \\
+&\le& \mathbb{E}[(\mathrm{VIX}_T-\mathrm{VIX}_0 (1+x T^{\half-H}))_+^q] ^{\frac{1}{q}}\, \mathbb{E}(1_{\mathrm{VIX}_T \ge \mathrm{VIX}_0(1\,+x T^{\half-H})})^{1-\frac{1}{q}}\,. \nn
+\eq
+Thus\bq
+&&T^{2H}\log \mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0\,(1+x T^{\half-H}))_+) \nn \\
+&\le&  \frac{T^{2H}}{q} \log \mathbb{E}[(\mathrm{VIX}_T-\mathrm{VIX}_0\,(1+x T^{\half-H}))_+^q] \,+\, T^{2H}(1-\frac{1}{q}) \log \mathbb{P}(\mathrm{VIX}_T \ge \mathrm{VIX}_0\,(1+x T^{\half-H})) \nn \\
+&\le& \frac{T^{2H}}{q} \log \mathbb{E}(\mathrm{VIX}_T^q) \,+ \, T^{2H}(1-\frac{1}{q}) \log  \mathbb{P}(\mathrm{VIX}_T \ge \mathrm{VIX}_0\,(1+x T^{\half-H}))\nn \\
+&\le& \frac{T^{2H}}{q} \log (\mathbb{E}(\mathrm{VIX}_T^{2q})^{\half}) \,+ \, T^{2H}(1-\frac{1}{q}) \log  \mathbb{P}(\mathrm{VIX}_T \ge \mathrm{VIX}_0\,(1+x T^{\half-H}))\nn \\
+&\le& \frac{T^{2H}}{q} \half \log (\frac{1}{\Delta} \int_T^{T+\Delta} \Ex((a_1+V_u)^q) du) \,+ \, T^{2H}(1-\frac{1}{q}) \log  \mathbb{P}(\mathrm{VIX}^2_T \ge \mathrm{VIX}_0^2(1+x T^{\half-H})^2)\nn  \\
+&&\text{(by \eqref{eq:Jen})} \nn \\
+&\le& \frac{T^{2H}}{q} \half  \log (\frac{1}{\Delta} \int_T^{T+\Delta} (a_1+\Ex(V_u^q)^{\frac{1}{q}})^q du)  \,+ \, T^{2H}(1-\frac{1}{q}) \log  \mathbb{P}(\mathrm{VIX}^2_T \ge \mathrm{VIX}_0^2(1+2x T^{\half-H}))\nn\\
+&&\text{(using Minkowski applied to $\Ex((a_1+V_u)^q)$)} \nn \\
+&\le& \frac{T^{2H}}{q} \half  \log (a_1+c_q^{\frac{1}{q}})^q \,+ \, T^{2H}(1-\frac{1}{q}) \log  \mathbb{P}(\mathrm{VIX}^2_T \ge \mathrm{VIX}_0^2(1+2x T^{\half-H}))\nn
+\eq
+where for each $q>1$ we fix $T_0>0$ and take $c_q:=\sup_{0\le u\le\Delta+T_0}\mathbb{E}(V_u^q)<\infty$, uniformly for $0<T\le T_0$, using Lemma C.1 in \cite{FGS21b} in the final line. Thus $T^{2H}\log(a_1+c_q^{1/q})\to0$ as $T\to0$. Letting $T\to 0$ in the final line and using the LDP and the continuity of $J$, and then letting $q\to \infty$, we see that
+\bq
+\limsup_{T\to 0}T^{2H}\log \mathbb{E}((\mathrm{VIX}_T-\mathrm{VIX}_0\,(1+x T^{\half-H}))_+)
+\lee -J(2\mathrm{VIX}_0^2 x) \,. \nn
+\eq
+\end{itemize}
+
+
+%\bq
+%\Ex(e^{\int_0^T \frac{1}{\e^{2H}}f(T-t)V^{\e}_{t}dt})
+%~ e^{V_0 \int_0^T f(t) dt +\half  V_0 \nu^2 \e^{2H}\int_0^T  \psi^{\e}(u,s)^2 ds} ~ e^{V_0 D^{1-\al}\psi_{\e}} 
+%\nn
+%\eq
+%where $\phi(u,t)$ satisfies
+%\bq
+%\psi^{\e}(u,t) &=& \int_0^t c_{\al}(t-s)^{\al-1} (\frac{1}{\e^H}f(s) \,+\, \half \nu^2 \e^{2H} \psi^{\e}(u,s)^2 ds\,.
+%\phi(u,at) &=&i uc_{\al}(at)^{\al-1}\,+\, \int_0^{at} c_{\al}(at-s)^{\al-1} \half \nu^2 \psi^{\e}(u,s)^2 ds\nn \\
+% &=&i uc_{\al}(at)^{\al-1}\,+\, a^{\al-1}a \int_0^{t} c_{\al}(t-v)^{\al-1} \half \nu^2 \psi^{\e}(u,v)^2 adv\nn 
+%\eq
+
+\vspace{-6mm}
+
+\section{Bivariate weak convergence}
+\renewcommand{\theequation}{B-\arabic{equation}}
+\setcounter{equation}{0}
+
+
+\begin{prop}
+\label{prop:F1}
+Let $\widetilde{X}_t:=X_t+L_t$ denote the continuous rough-Heston log-price component and let $X^{(0)}_t:=\sqrt{V_0}(\rho W_t+\bar{\rho} B_t)$. Then $(\widetilde{X}_t/\sqrt{t},(V_t-\xi_0(t))/t^H)$ and
+$(X^{(0)}_t/\sqrt{t},(V_t-\xi_0(t))/t^H)$ both tend weakly to the same bivariate Gaussian as $t\to 0$.
+\end{prop}
+\begin{proof}
+By the Volterra equation for $V$ and It\^o isometry, using $\mathbb{E}(V_s)=\xi_0(s)$,
+\bq
+\mathbb{E}((V_t-\xi_0(t))^2)
+&=&\nu^2 c_{\al}^2\int_0^t(t-s)^{2\al-2}\xi_0(s)ds
+\le C t^{2H}\nn
+\eq
+for all sufficiently small $t$, since $\xi_0$ is continuous. Thus
+$
+\sup_{0\le s\le t}\mathbb{E}(|V_s-V_0|)
+\le \sup_{0\le s\le t}|\xi_0(s)-V_0|+Ct^H\to0.\nn
+$
+Since $\widetilde{X}_t=-\half\int_0^t V_sds+\int_0^t\sqrt{V_s}(\rho dW_s+\bar{\rho}dB_s)$, the It\^o isometry and $|\sqrt{v}-\sqrt{V_0}|^2\le|v-V_0|$ for $v\ge0$ imply
+\bq
+\mathbb{E}((\frac{1}{\sqrt{t}}\int_0^t(\sqrt{V_s}-\sqrt{V_0})(\rho dW_s+\bar{\rho}dB_s))^2)
+&\le&\sup_{0\le s\le t}\mathbb{E}(|V_s-V_0|)\to0.\nn
+\eq
+Also, $\mathbb{E}((t^{-1/2}\int_0^tV_sds)^2)\le\int_0^t\mathbb{E}(V_s^2)ds=O(t)$, since the preceding second-moment bound makes $\mathbb{E}(V_s^2)$ locally bounded. Thus
+$\frac{\widetilde{X}_t-X^{(0)}_t}{\sqrt{t}}\to0\quad\text{in }L^2.
+$
+Similarly, by Brownian scaling, define
+$
+\widetilde{W}^{\e}_r:=\e^{-\half}W_{\e r}$,
+$\widetilde{B}^{\e}_r:=\e^{-\half}B_{\e r}.
+$
+Then
+\bq
+\frac{X^{(0)}_{\e t}}{\sqrt{\e}}
+&=&
+\sqrt{V_0}(\rho \widetilde{W}^{\e}_t+\bar{\rho}\widetilde{B}^{\e}_t),
+\nn\\
+\frac{V_{\e t}-\xi_0(\e t)}{\e^H}
+&=&
+\nu c_{\al}\int_0^t (t-r)^{\al-1}\sqrt{V_{\e r}}d\widetilde{W}^{\e}_r .
+\nn
+\eq
+Since $\sup_{0\le r\le t}\mathbb{E}(|V_{\e r}-V_0|)\to0$ and $(t-r)^{\al-1}$ is square-integrable on this interval, It\^o isometry gives convergence of the stochastic integral in $L^2$. We therefore obtain
+\bq
+(
+\frac{X^{(0)}_{\e t}}{\sqrt{\e}},
+\frac{V_{\e t}-\xi_0(\e t)}{\e^H}
+)
+&\wc&
+(
+\sqrt{V_0}(\rho W_t+\bar{\rho}B_t),\,
+\nu \sqrt{V_0}c_{\al}\int_0^t (t-r)^{\al-1}dW_r
+).
+\nn
+\eq
+The limiting vector is centred Gaussian with moment generating function
+$
+e^{V_0(
+\half p^2t
++
+p\rho\nu u\frac{t^{\al}}{\Gamma(\al+1)}
++
+\half\nu^2u^2\frac{t^{2\al-1}}{\Gamma(\al)^2(2\al-1)}
+)
+}.
+$
+By Slutsky's theorem and the preceding $L^2$ estimate, the same weak limit holds with $X^{(0)}_t$ replaced by $\widetilde{X}_t$. Note that the additional independent Brownian component of $L$ contributes $\sigma^2$ to the variance of the weak limit for the full log price $X_t/\sqrt t$, so the corresponding assertion for $X_t$ itself would be false when $\sigma>0$.
+\end{proof}
+
+
+
+\section{Extending to unbounded volatility}
+\renewcommand{\theequation}{C-\arabic{equation}}
+\setcounter{equation}{0}
+
+
+%We now replace the assumption that $v$ is $C^2_b$ with the milder assumption that $v$ is $C^2_b$ on $(-\infty,y]$ for any $y>0$, which (by Theorem 1 in Gassiat\cite{Gas19}) ensures that $S$ is still a martingale when $\rho \le 0$, so in particular put-call parity is preserved.  For this reason we always assume $\rho \le 0$ in this subsection. 
+This appendix is a minor variation of Section 2.1 in \cite{FSV21} adapted for our purposes here.
+ We first let $\ul{V}_t:=\mathrm{min}_{0 \le s \le t}V_s$ and $\bar{V}_t:=\mathrm{max}_{0 \le s \le t}V_s$, and 
+% Then (from the aforementioned condition in \cite{Gas19}) we know that for some $w>v_0$ sufficiently large, if $A := \lb \bar{v}_{\theta} \le w \rb$ then
+%\bq
+%A^c ~ \lb \bar{v}_{\theta} \ge w \rb \,\,\,\,\subseteq \,\,\,\,B^c \nn
+%\eq
+%where $B:=\lb \bar{Y}_{\theta} \le a \rb$, for some $a=a(w)>Y_0$.
+% so clearly $B \Rightarrow A$.
+we consider the stochastic Volterra system
+\bq
+%d\hat{X}_t &=& -\half \sigma(\hat{V}_t)^2 dt \,+\, \sigma(\hat{V}_t) (\rho dW_t+\bar{\rho}dB_t)\nn \\
+\hat{V}_t &=& \xi_0(t) \,+\,c_{\al} \nu\int_0^t (t-s)^{H-\half}\sigma(\hat{V}_s) dW_s \nn
+\eq
+where $\sigma\in C^2_b$ as in \cite{FSV21} and bounded away from zero with $\sigma(y)= \sqrt{y}$ for $y \in [a,b]$ for some $a\in (0,V_0)$ and $b>V_0$, so in particular $\sigma$ is bounded and Lipschitz.  Then $V_t=\hat{V}_t$ for $t\in [0,\tau_a \wedge \tau_b)$ where $\tau_a=\inf \lb t:V_t=a\rb$ (and similarly for $\tau_b$) for any $a\in (0,V_0)$ since we have pathwise uniqueness for
+$\hat{V}$ (see section 4.2.3 in \cite{JP20} and discussion in section 2 in \cite{FGS21}) and from Proposition 4.3 in \cite{JP20} (or Theorem 3.11 in \cite{Zha08}), we know that 
+$\hat{V}_{t(.)}$
+ satisfies the large deviation principle on $C_{V_0}[0,1]$ as $t\to 0$ with speed $1/t^{2H}$ and rate function  
+\bq
+I(\phi) &=&
+% \inf_{\psi: I^{\al} \psi +V_0=\phi} \half \int_0^1 \psi'(t)^2 dt
+%\half  \int_0^1 (\frac{D^{\al}(\phi(.)-\phi(0))(t)}{\sigma(\phi(t))})^2 dt \nn
+\half  \int_0^1 (\frac{D^{\al}(\phi(.)-\phi(0))(t)}{\nu\,\sigma(\phi(t))})^2 dt \nn
+\eq
+if $\phi\in I_{V_0}^{H+\half}(L^1)$, and $I(\phi)=\infty$ otherwise.
+%if $\phi$ is $\al$ differentiable, or else the right hand side is finite.  
+% then $D^{\al}(\phi(.)-\phi(0))$ is non-zero (and hence $I(\phi)$ is non zero
+%since 
+ %Then (from the 
+%contraction principle from large deviations theory), since the maximum of a function is a continuous functional under the sup norm metric, $\ul{V}_t$ satisfies the LDP with speed $t^{-2H}$ and good rate function:
+%If $\overline{K_H f}(1)\ge R$, then for some $t \in [0,1]$ we have
+%\bq
+%J(y) &=&\inf_{\phi \in C_{V_0}([0,1]): 
+%\ul{\phi}(1) =y} I(\phi)\nn
+%~ \inf_{f \in  L^2([0,1]): \overline{\mathbf{K}_{\mathrm{RL}}  f}(1) =y} \half \|f\|^2_{L^2([0,1])} \nn \,.
+%\eq
+Now let $A:=\lb \ul{V}_t> a \rb \cap \lb \bar{V}_t <b \rb$ and set $\hat{S}_t=e^{\hat{X}_t}$, where
+\bq
+d\hat{X}_t &=&-\half \sigma(\hat{V}_t)^2 dt \,+\, \sigma(\hat{V}_t) (\rho dW_t+\bar{\rho} dB_t ) \,-\,dL_t \nn
+%~ \, Y_{t_0} \,+\,\sqrt{2H} \int_{t_0}^0 (t-s)^{H-\half} dW_s\,+\, \sqrt{2H} \int_{0}^t (t-s)^{H-\half} dW_s \\
+\eq
+and $\hat{X}_0=0$ i.e. the same stock price process (defined on the same probability space) but with $V_t$ replaced with $\hat{V}_t$.  Then for all $\e>0$ we have
+\bq
+\Ex((e^{z\sqrt{t}}-S_t)^+ )
+&=&\Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ 1_A) \,+\, \Ex((e^{z\sqrt{t}}-S_{t})^+ 1_{A^c})\nn \\
+&\lee&\Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ ) \,+\, e^{z\sqrt{t}}\Pb(A^c)\nn \\
+&\le &\Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+)   \,+\, e^{z\sqrt{t}}e^{-\frac{1}{t^{2H}}(-\e+	J(a,b))}\nn
+%\ul{\phi}(1) =y}-\e)}\nn \,
+\eq
+for $t$ sufficiently small, where $J(a,b)=\inf_{\phi \in C_{V_0}([0,1]):\ul{\phi}(1)\le a\text{ or } \bar{\phi}(1)\ge b}I(\phi)$, and we have used the upper bound implied by the aforementioned LDP in the final line.  For this to be useful, we need to check that $J(a,b)>0$.  To this end, let $\mc{I}:H^1_0\to C_{V_0}([0,1])$ be the It$\mathrm{\hat{o}}$ map which takes $h$ to the solution to $\phi(t)=V_0+\int_0^t c_{\al}\nu (t-s)^{H-\half}\dot{h}_s \sigma(\phi(s)) ds$ (recall this solution is unique since $\sigma$ is bounded and Lipschitz).  Then 
+\bq
+|\mc{I}(h)(t)-V_0|~  |\phi(t)-V_0| ~  |\int_0^t c_{\al}\nu (t-s)^{H-\half} \sigma(\phi(s)) \dot{h}_s ds|&\le&
+%|\int_0^t c_{\al}\nu (t-s)^{H-\half} \sigma(b) \dot{h}_s ds| \nn \\
+\|\sigma\|_{\infty}\int_0^t c_{\al}\nu (t-s)^{H-\half} |\dot{h}_s| ds \nn \\
+&\le& const.\times
+\half (\int_0^t \dot{h}^2_s ds)^{\half}\nn\\
+&\le& const.\times I(\phi)^{\half}\nn
+\eq
+where we have used Cauchy-Schwarz in the penultimate inequality.
+%$I$ is a good rate function so its infimum is attained on a closed set, so if $J(a,b)=0$ then there exists
+If $J(a,b)=0$ then for all $\e>0$ there exists a $\phi_{\e}\in C_{V_0}([0,1])$ with $\ul{\phi}_{\e}(1)\le a\text{ or } \bar{\phi}_{\e}(1)\ge b$ and $I(\phi_{\e})\le \e$, which (from the bound immediately above) implies that the sup norm of $\phi_{\e}-V_0$ is less than $(b-V_0)\wedge (V_0-a)$ for $\e$ sufficiently small, which is a contradiction.  Thus $J(a,b)>0$.
+%If $\phi \in C_{V_0}([0,1])$ with $\ul{\phi}(1)\le a\text{ or } \ul{\phi}(1)\ge b$
+%then clearly $\phi-V_0$ is non-zero in $L^2(\mathbb{R}_+)$, and since it is a standard result that the Laplace transform is an isometry from $L^2(\mathbb{R}_+)$ to the Hardy space $H^2(\mathbb{C}_+)$ (see e.g. \cite{CPR17}), $\widehat{\phi-V_0}$ is also in $L^2(\mathbb{R}_+)$ and if $D^{\al}(\phi-V_0)$ exists and $I(\phi)<\infty$, then since $\phi-V_0=K*D^{\al}(\phi-V_0)$ where $K(t)=t^{\al-1}/\Gamma(\al)$ we have that $\widehat{\phi-V_0}=\hat{K}\mc{L}(D^{\al}(\phi-V_0))$ where $\hat{K}(\lm)=\lm^{-\half -H} >0$ so $\mc{L}(D^{\al}(\phi-V_0))$ is also non-zero in $L^2(\mathbb{R}_+)$ and hence so is $D^{\al}\phi$ so $I(\phi)>0$.  
+
+\sk
+Similarly
+\bq
+\Ex((e^{z\sqrt{t}}-S_{t})^+ )
+%\gee \Ex((e^{z\sqrt{t}}-S_{t})^+ 1_{A})
+%&=&\tilde{\Ex}((e^{z\sqrt{t}}-S_{t})^+ 1_{A}) \nn \\
+\gee\Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ 1_A) 
+&=&\Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ ) - \Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ 1_{A^c} )\nn \\
+&\ge& \Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ ) \,-\, e^{z\sqrt{t}}e^{-\frac{1}{t^{2H}}(J(a,b)-\e)}\nn\,.
+\eq
+%sort out lower bound, and extraction ...
+\nind Thus
+\bq
+\frac{1}{\sqrt{t}}\Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ )  \,-\,\frac{e^{z\sqrt{t}}}{\sqrt{t}}e^{-\frac{1}{t^{2H}}(J(a,b)-\e)}&\le &
+\frac{1}{\sqrt{t}}\Ex((e^{z\sqrt{t}}-S_{t})^+ ) \nn \\
+&\le& \frac{1}{\sqrt{t}}\Ex((e^{z\sqrt{t}}-\hat{S}_{t})^+ )  \,+\, \frac{e^{z\sqrt{t}}}{\sqrt{t}}e^{-\frac{1}{t^{2H}}(J(a,b)-\e)} \nn \,.
+\eq
+For the localized model $\hat S$, the quantitative comparison with the Gaussian-plus-L\'{e}vy model in the proof of Proposition \ref{prop:FSV} gives the leading jump expansion with an $o(t^{1-Y/2})$ remainder. The bounds above show that the difference between its normalized put price and that of $S$ is exponentially small in $t^{-2H}$, so this error is also $o(t^{1-Y/2})$. Consequently the same leading-jump expansion holds for $S$.
+
+
+
+
+%Assume $|u|\gg 1$, so we might expect $\phi(u,t) \sim i uc_{\al}(at)^{\al-1}$,
+%so
+%\bq
+%e^{-\half  V_0 \nu^2 u^2    c_{\al} \int_0^t s^{\al-1} ds}\to 0\nn
+%\eq
+%as $|u|\to \infty$, but this disagrees with analysis for $H=\half$ when we know there's a non zero probability of absorption
+
+
+\end{document}
